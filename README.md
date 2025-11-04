@@ -1,73 +1,271 @@
-# React Shadcn Starter
+TODO
 
-React + Vite + TypeScript template for building apps with shadcn/ui.
+dar forma a las pages, abstraer si se usan 2 o mas veces, dejar listo para la recepcion de datos
 
-## Getting Started
+crear componentes comunes filterbar
 
-```bash
-npx degit hayyi2/react-shadcn-starter my-project
-cd my-project
-npm install
-npm run dev
-```
+conectar con supabase y crear los archivos necesarios para el manejo de la base de datos
+mas o menos asi
 
-## Getting Done
+src/
+├── types/
+│ ├── Profile.ts
+│ ├── Plant.ts
+│ ├── Event.ts
+│ └── EventParticipant.ts
+│
+├── services/
+│ ├── supabaseClient.ts
+│ ├── profileService.ts
+│ ├── plantService.ts
+│ ├── eventService.ts
+│ └── eventParticipantService.ts
 
-- [x] Single page app with navigation and responsif layout
-- [x] Customable configuration `/config`
-- [x] Simple starting page/feature `/pages`
-- [x] Github action deploy github pages
++test
 
-## Deploy `gh-pages`
+crear auth basico
 
-- change `basenameProd` in `/vite.config.ts`
-- create deploy key `GITHUB_TOKEN` in github `/settings/keys`
-- commit and push changes code
-- setup gihub pages to branch `gh-pages`
-- run action `Build & Deploy`
+crear hooks necesarios
+src/
+├── hooks/
+│ ├── useAuth.ts
+│ ├── useProfile.ts
+│ ├── usePlants.ts
+│ ├── useEvents.ts
+│ └── useEventParticipants.ts
 
-### Auto Deploy
++test
 
-- change file `.github/workflows/build-and-deploy.yml`
-- Comment on `workflow_dispatch`
-- Uncomment on `push`
+-------------plan de atauqe-----------------------
 
-```yaml
-# on:
-#   workflow_dispatch:
-on:
-  push:
-    branches: ["main"]
-```
+🧩 FASE 1 — Estructura base del proyecto
 
-## Features
+Objetivo: Tener la arquitectura clara antes de conectar nada.
 
-- React + Vite + TypeScript
-- Tailwind CSS
-- [shadcn-ui](https://github.com/shadcn-ui/ui/)
-- [react-router-dom](https://www.npmjs.com/package/react-router-dom)
+🪵 Rama:
+feature/structure-pages
 
-## Project Structure
+TODO:
 
-```md
-react-shadcn-starter/
-├── public/            # Public assets
-├── src/               # Application source code
-│   ├── components/    # React components
-│   ├── context/       # contexts components
-│   ├── config/        # Config data
-│   ├── hook/          # Custom hooks
-│   ├── lib/           # Utility functions
-│   ├── pages/         # pages/features components
-│   ├── App.tsx        # Application entry point
-│   ├── index.css      # Main css and tailwind configuration
-│   ├── main.tsx       # Main rendering file
-│   └── Router.tsx     # Routes component
-├── index.html         # HTML entry point
-├── tsconfig.json      # TypeScript configuration
-└── vite.config.ts     # Vite configuration
-```
+Crear las páginas principales (src/pages/):
 
-## License
+HomePage.tsx
 
-This project is licensed under the MIT License. See the [LICENSE](https://github.com/hayyi2/react-shadcn-starter/blob/main/LICENSE) file for details.
+PlantsPage.tsx
+
+EventsPage.tsx
+
+ProfilePage.tsx
+
+Crear layout general (Header, Footer, contenido principal)
+
+Abstraer secciones o bloques repetidos en componentes
+
+Dejar cada página preparada para recibir datos
+
+🔁 Merge:
+Cuando tengas las páginas funcionales y sin errores visuales, mergear a dev.
+
+🧱 FASE 2 — Componentes comunes
+
+Objetivo: Reutilizar UI consistente en toda la app.
+
+🪵 Rama:
+feature/common-components
+
+TODO:
+
+Crear carpeta src/components/common/ o src/components/ui/
+
+Crear componentes base:
+
+FilterBar
+
+PlantCard
+
+EventCard
+
+EmptyState
+
+Revisar duplicaciones entre páginas y abstraerlas
+
+🔁 Merge:
+A dev cuando los componentes estén probados visualmente y usados en alguna página.
+
+🔐 FASE 3 — Autenticación básica
+
+Objetivo: Login y registro con email/contraseña.
+
+🪵 Rama:
+feature/auth-basic
+
+TODO:
+
+Instalar @supabase/supabase-js
+
+Crear services/supabaseClient.ts
+
+Crear authService.ts con:
+
+signUp
+
+signIn
+
+signOut
+
+getUser
+
+onAuthStateChange
+
+Crear useAuth.ts
+
+Crear página o modal de login (AuthPage.tsx)
+
+Añadir protección de rutas
+
+🧪 Tests:
+
+Mock de supabase.auth
+
+Test de login/logout con authService
+
+🔁 Merge:
+A dev cuando puedas iniciar sesión, cerrar sesión y leer el usuario actual sin errores.
+
+🪴 FASE 4 — Conexión con Supabase (datos)
+
+Objetivo: Crear tipado y servicios CRUD.
+
+🪵 Rama:
+feature/supabase-services
+
+TODO:
+
+Crear carpeta src/types/ con:
+
+Profile.ts
+
+Plant.ts
+
+Event.ts
+
+EventParticipant.ts
+
+Crear carpeta src/services/ con:
+
+supabaseClient.ts
+
+profileService.ts
+
+plantService.ts
+
+eventService.ts
+
+eventParticipantService.ts
+
+Probar lectura y escritura de datos reales
+
+🧪 Tests:
+
+Mock de supabase.from()
+
+Test de CRUD básico (getAll, getById, create, delete)
+
+🔁 Merge:
+A dev cuando todos los servicios respondan correctamente.
+
+⚙️ FASE 5 — Hooks de datos
+
+Objetivo: Encapsular lógica de carga y estado de cada entidad.
+
+🪵 Rama:
+feature/data-hooks
+
+TODO:
+
+Crear carpeta src/hooks/
+
+useAuth.ts (de FASE 3)
+
+useProfile.ts
+
+usePlants.ts
+
+useEvents.ts
+
+useEventParticipants.ts
+
+Cada hook debe manejar:
+
+Estado (data, loading, error)
+
+Funciones CRUD (refetch, add, delete, etc.)
+
+Dependencias (userId, eventId, etc.)
+
+Integrar los hooks en las páginas correspondientes
+
+🧪 Tests:
+
+Mockear servicios
+
+Test de hooks con @testing-library/react
+
+🔁 Merge:
+A dev cuando los hooks devuelvan datos y controlen estados correctamente.
+
+🎨 FASE 6 — Integración UI + Datos
+
+Objetivo: Que las páginas muestren datos reales con filtros.
+
+🪵 Rama:
+feature/ui-integration
+
+TODO:
+
+Conectar usePlants con PlantsPage
+
+Conectar useEvents con EventsPage
+
+Integrar FilterBar:
+
+Filtro de texto (search)
+
+Toggle (disponible / próximos)
+
+Mostrar EmptyState si no hay resultados
+
+Añadir estados visuales (loading, error)
+
+🧪 Tests de UI:
+
+Mock de hooks
+
+Test de renderizado según estado (datos, loading, sin resultados)
+
+🔁 Merge:
+A dev cuando ambas páginas muestren datos filtrables desde Supabase.
+
+🧪 FASE 7 — Testing general
+
+Objetivo: Validar estabilidad del sistema completo.
+
+🪵 Rama:
+feature/tests
+
+TODO:
+
+Instalar y configurar Vitest + React Testing Library
+
+Crear estructura:
+
+src/
+├── services/**tests**/
+├── hooks/**tests**/
+├── components/**tests**/
+
+Tests unitarios → services
+
+Tests de integración → hooks
+
+Tests de UI → components
