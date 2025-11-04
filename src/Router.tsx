@@ -1,9 +1,9 @@
 import { Routes, Route } from "react-router-dom";
 import { AppLayout } from "./components/app-layout";
 import NotMatch from "./pages/NotMatch";
-import PlantsPage from "./pages/MyPlants";
-import HomePage from "./pages/Home";
-import Events from "./pages/Events";
+import PlantsPage from "./pages/MyPlantsPage";
+import HomePage from "./pages/HomePage";
+import Events from "./pages/EventsPage";
 
 export default function Router() {
   return (
