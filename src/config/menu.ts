@@ -1,12 +1,4 @@
-import {
-  CircleAlert,
-  Files,
-  Gauge,
-  LucideIcon,
-  HomeIcon,
-  LeafIcon,
-} from "lucide-react";
-import { homedir } from "os";
+import { MapPinIcon, LucideIcon, HomeIcon, LeafIcon } from "lucide-react";
 
 type MenuItemType = {
   title: string;
@@ -24,31 +16,13 @@ export const mainMenu: MenuType = [
     icon: HomeIcon,
   },
   {
-    title: "Dashboard",
-    url: "/",
-    icon: Gauge,
+    title: "Events",
+    url: "/events",
+    icon: MapPinIcon,
   },
   {
-    title: "Plants",
-    url: "/pages/feature",
+    title: "My Plants",
+    url: "/MyPlants",
     icon: LeafIcon,
-  },
-
-  {
-    title: "Pages",
-    url: "/pages",
-    icon: Files,
-    items: [
-      {
-        title: "Sample Page",
-        url: "/pages/sample",
-        icon: Files,
-      },
-    ],
-  },
-  {
-    title: "Error",
-    url: "/404",
-    icon: CircleAlert,
   },
 ];
