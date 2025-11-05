@@ -15,9 +15,11 @@ import { HamburgerMenu } from "./hamburger-menu";
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { baseUrl } from "@/config/app";
+import { useAuth } from "@/hooks/useAuth";
 
 export function AppHeader() {
   const location = useLocation();
+  const { user, signOut } = useAuth();
 
   return (
     <header className="bg-background sticky top-0 z-50 border-b">
@@ -92,34 +94,39 @@ export function AppHeader() {
             </nav>
           </div>
           <nav className="flex gap-1">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="relative h-8 w-8 rounded-full cursor-pointer ml-2"
-                >
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage
-                      src={baseUrl + "/avatars/shadcn.jpg"}
-                      alt="shadcn"
-                    />
-                    <AvatarFallback className="rounded-lg">SC</AvatarFallback>
-                  </Avatar>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end" forceMount>
-                <DropdownMenuLabel className="font-normal">
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">shadcn</p>
-                    <p className="text-xs leading-none text-muted-foreground">
-                      m@example.com
-                    </p>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>Log out</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {user && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="relative h-8 w-8 rounded-full cursor-pointer ml-2"
+                  >
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={baseUrl} alt={user.email} />
+                      <AvatarFallback className="rounded-lg">
+                        {user.email.substring(0, 2).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none">
+                        Usuario
+                      </p>
+                      <p className="text-xs leading-none text-muted-foreground">
+                        {user.email}
+                      </p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => signOut()}>
+                    Cerrar sesión
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </nav>
         </div>
       </div>

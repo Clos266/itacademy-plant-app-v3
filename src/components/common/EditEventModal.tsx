@@ -1,14 +1,16 @@
 import { useState, useEffect } from "react";
 import { BaseModal } from "./BaseModal";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { ImageUploader } from "./ImageUploader";
 import { EventWithDetails, UpdateEventData } from "@/types";
+import { useEvents } from "@/hooks/useEvents";
 
 interface EditEventModalProps {
   isOpen: boolean;
   onClose: () => void;
   event?: EventWithDetails;
-  onSave: (eventData: UpdateEventData) => void;
+  onSave: (eventData: UpdateEventData & { image?: File }) => void;
 }
 
 export function EditEventModal({
@@ -22,6 +24,8 @@ export function EditEventModal({
   const [date, setDate] = useState("");
   const [description, setDescription] = useState("");
   const [image, setImage] = useState<File | null>(null);
+
+  const { removeEvent } = useEvents();
 
   // Resetear o cargar datos cuando se abre/cierra o cambia el evento
   useEffect(() => {
@@ -47,7 +51,7 @@ export function EditEventModal({
       location,
       date,
       description,
-      image_url: image ? URL.createObjectURL(image) : event?.image_url || "",
+      image: image || undefined, // Pasar el archivo File, no la URL temporal
     };
     onSave(eventData);
     onClose();
@@ -57,6 +61,20 @@ export function EditEventModal({
     onClose();
   };
 
+  const handleDelete = async () => {
+    if (event) {
+      const confirmed = window.confirm(
+        "¿Estás seguro de que quieres eliminar este evento? Esta acción no se puede deshacer."
+      );
+
+      if (confirmed) {
+        const result = await removeEvent(event.id);
+        if (result.success) {
+          onClose();
+        }
+      }
+    }
+  };
   return (
     <BaseModal
       isOpen={isOpen}
@@ -70,6 +88,20 @@ export function EditEventModal({
       onConfirm={handleSave}
       confirmLabel={event ? "Update Event" : "Create Event"}
     >
+      {/* Delete Button - Only show when editing an existing event */}
+      {event && (
+        <div className="mb-4 pb-4 border-b border-border">
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={handleDelete}
+            className="flex items-center gap-2"
+          >
+            🗑️ Delete Event
+          </Button>
+        </div>
+      )}
+
       <form className="flex flex-col gap-4">
         <Input
           type="text"

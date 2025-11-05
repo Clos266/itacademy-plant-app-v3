@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { PageHeader, PageHeaderHeading } from "@/components/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -16,85 +15,68 @@ import { BaseModal } from "@/components/common/BaseModal";
 import { ImageUploader } from "@/components/common/ImageUploader";
 import { EditPlantModal } from "@/components/common/EditPlantModal";
 import { Plant, UpdatePlantData } from "@/types";
+import { usePlants } from "@/hooks/usePlants";
+import { useModals } from "@/hooks/useModals";
+import { useFilters } from "@/hooks/useFilters";
 
 export default function MyPlants() {
-  // estado de filtros
-  const [search, setSearch] = useState("");
-  const [showAvailable, setShowAvailable] = useState(true);
+  // Custom hooks for business logic
+  const {
+    plants,
+    loading,
+    error,
+    addPlant,
+    updateExistingPlant,
+    removePlant,
+    filterPlants,
+  } = usePlants();
+  const { search, showAvailable, setSearch, setShowAvailable } = useFilters();
+  const {
+    addModalOpen,
+    addFormData,
+    editModalOpen,
+    selectedPlant,
+    openAddModal,
+    closeAddModal,
+    updateAddForm,
+    openEditModal,
+    closeEditModal,
+  } = useModals();
 
-  // estado del modal
-  const [open, setOpen] = useState(false);
+  // Filter plants based on current filters
+  const filteredPlants = filterPlants(plants, search, showAvailable);
 
-  // estado del modal de edición
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const [selectedPlant, setSelectedPlant] = useState<Plant | null>(null);
+  // Handle saving new plant
+  const handleSave = async () => {
+    if (!addFormData.name.trim()) return;
 
-  // estado del formulario del modal
-  const [name, setName] = useState("");
-  const [sciName, setSciName] = useState("");
-  const [file, setFile] = useState<File | null>(null);
+    const result = await addPlant({
+      name: addFormData.name.trim(),
+      scientific_name: addFormData.sciName.trim(),
+      image_url: null, // Se establecerá automáticamente por el servicio
+      is_available: true,
+      file: addFormData.file || undefined, // Pasar el archivo directamente
+    });
 
-  // Datos de plantas (convertidos a la nueva estructura)
-  const mockPlants = [
-    {
-      id: 1,
-      name: "Fiddle Leaf Fig",
-      scientific: "Ficus lyrata",
-      available: true,
-    },
-    {
-      id: 2,
-      name: "Snake Plant",
-      scientific: "Sansevieria trifasciata",
-      available: true,
-    },
-    {
-      id: 3,
-      name: "Peace Lily",
-      scientific: "Spathiphyllum wallisii",
-      available: false,
-    },
-  ];
-
-  // Convertir datos mock a la nueva estructura
-  const allPlants: Plant[] = mockPlants.map((plant) => ({
-    id: plant.id.toString(),
-    created_at: "2024-11-01T10:00:00Z",
-    user_id: "user-1",
-    name: plant.name,
-    scientific_name: plant.scientific,
-    image_url: null,
-    is_available: plant.available,
-  }));
-
-  // Aplicar filtros
-  const filteredPlants = allPlants.filter((plant) => {
-    const matchesSearch =
-      plant.name.toLowerCase().includes(search.toLowerCase()) ||
-      plant.scientific_name.toLowerCase().includes(search.toLowerCase());
-
-    const matchesAvailability = showAvailable ? plant.is_available : true;
-
-    return matchesSearch && matchesAvailability;
-  });
-
-  const handleSave = () => {
-    console.log("New plant:", { name, sciName, file });
-    setOpen(false);
-    setName("");
-    setSciName("");
-    setFile(null);
+    if (result.success) {
+      closeAddModal();
+    }
   };
 
-  const handleEditClick = (plant: Plant) => {
-    setSelectedPlant(plant);
-    setEditModalOpen(true);
+  // Handle editing existing plant
+  const handleEditSave = async (plantData: UpdatePlantData) => {
+    if (!selectedPlant) return;
+
+    const result = await updateExistingPlant(selectedPlant.id, plantData);
+    if (result.success) {
+      closeEditModal();
+    }
   };
 
-  const handleEditSave = (plantData: UpdatePlantData) => {
-    console.log("Plant updated:", plantData);
-    setEditModalOpen(false);
-    setSelectedPlant(null);
+  // Handle plant deletion
+  const handleDelete = async (plantId: string) => {
+    if (!confirm("¿Estás seguro de que quieres eliminar esta planta?")) return;
+    await removePlant(plantId);
   };
 
   return (
@@ -103,6 +85,13 @@ export default function MyPlants() {
       <PageHeader>
         <PageHeaderHeading>My Plants</PageHeaderHeading>
       </PageHeader>
+
+      {/* Error Message */}
+      {error && (
+        <div className="bg-destructive/10 text-destructive px-4 py-3 rounded-lg mb-4">
+          {error}
+        </div>
+      )}
 
       {/* Filtros y botón */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
@@ -115,7 +104,9 @@ export default function MyPlants() {
           placeholder="search plants..."
         />
 
-        <Button onClick={() => setOpen(true)}>+ Add New Plant</Button>
+        <Button onClick={openAddModal} disabled={loading}>
+          {loading ? "Loading..." : "+ Add New Plant"}
+        </Button>
       </div>
 
       {/* Tabla de plantas */}
@@ -132,13 +123,27 @@ export default function MyPlants() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredPlants.length > 0 ? (
-                filteredPlants.map((plant) => (
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center py-8">
+                    Loading plants...
+                  </TableCell>
+                </TableRow>
+              ) : filteredPlants.length > 0 ? (
+                filteredPlants.map((plant: Plant) => (
                   <TableRow key={plant.id}>
                     <TableCell>
-                      <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center">
-                        🌱
-                      </div>
+                      {plant.image_url ? (
+                        <img
+                          src={plant.image_url}
+                          alt={plant.name}
+                          className="w-12 h-12 object-cover rounded-lg"
+                        />
+                      ) : (
+                        <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center">
+                          🌱
+                        </div>
+                      )}
                     </TableCell>
                     <TableCell className="font-medium">{plant.name}</TableCell>
                     <TableCell className="text-muted-foreground">
@@ -158,11 +163,17 @@ export default function MyPlants() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handleEditClick(plant)}
+                          onClick={() => openEditModal(plant)}
+                          disabled={loading}
                         >
                           Edit
                         </Button>
-                        <Button variant="destructive" size="sm">
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => handleDelete(plant.id)}
+                          disabled={loading}
+                        >
                           Delete
                         </Button>
                       </div>
@@ -175,7 +186,9 @@ export default function MyPlants() {
                     colSpan={5}
                     className="text-center py-8 text-muted-foreground"
                   >
-                    No plants found matching your criteria.
+                    {error
+                      ? "Error loading plants. Please try again."
+                      : "No plants found matching your criteria."}
                   </TableCell>
                 </TableRow>
               )}
@@ -186,28 +199,32 @@ export default function MyPlants() {
 
       {/* Modal para añadir planta */}
       <BaseModal
-        isOpen={open}
-        onClose={() => setOpen(false)}
-        title="add new plant"
-        description="fill in the details below to add a new plant."
+        isOpen={addModalOpen}
+        onClose={closeAddModal}
+        title="Add New Plant"
+        description="Fill in the details below to add a new plant."
         onConfirm={handleSave}
+        confirmLabel={loading ? "Creating..." : "Add Plant"}
       >
         <form className="flex flex-col gap-4">
           <Input
             type="text"
             placeholder="Common name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            value={addFormData.name}
+            onChange={(e) => updateAddForm("name", e.target.value)}
+            required
+            disabled={loading}
           />
           <Input
             type="text"
             placeholder="Scientific name"
-            value={sciName}
-            onChange={(e) => setSciName(e.target.value)}
+            value={addFormData.sciName}
+            onChange={(e) => updateAddForm("sciName", e.target.value)}
+            disabled={loading}
           />
           <ImageUploader
             value={null}
-            onChange={setFile}
+            onChange={(file) => updateAddForm("file", file)}
             label="Upload Plant Image"
           />
         </form>
@@ -216,10 +233,7 @@ export default function MyPlants() {
       {/* Modal de edición de planta */}
       <EditPlantModal
         isOpen={editModalOpen}
-        onClose={() => {
-          setEditModalOpen(false);
-          setSelectedPlant(null);
-        }}
+        onClose={closeEditModal}
         onSave={handleEditSave}
         plant={selectedPlant || undefined}
       />

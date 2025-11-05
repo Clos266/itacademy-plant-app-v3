@@ -132,47 +132,35 @@ Test de login/logout con authService
 🔁 Merge:
 A dev cuando puedas iniciar sesión, cerrar sesión y leer el usuario actual sin errores.
 
-🪴 FASE 4 — Conexión con Supabase (datos)
+🪴 FASE 4 — Conexión con Supabase (datos) ✅ COMPLETADA
 
 Objetivo: Crear tipado y servicios CRUD.
 
 🪵 Rama:
 feature/supabase-services
 
-TODO:
+✅ COMPLETADO:
 
-Crear carpeta src/types/ con:
+✅ Crear carpeta src/types/ con interfaces centralizadas
 
-Profile.ts
+✅ Crear carpeta src/services/ con:
 
-Plant.ts
+✅ supabaseClient.ts - Cliente simple con tipos básicos
 
-Event.ts
+✅ profileService.ts - CRUD básico para perfiles
 
-EventParticipant.ts
+✅ plantService.ts - CRUD básico para plantas
 
-Crear carpeta src/services/ con:
+✅ eventService.ts - CRUD básico para eventos
 
-supabaseClient.ts
+✅ eventParticipantService.ts - CRUD básico para participaciones
 
-profileService.ts
+✅ Integrar servicios en MyPlantsPage (sin mocks)
 
-plantService.ts
-
-eventService.ts
-
-eventParticipantService.ts
-
-Probar lectura y escritura de datos reales
-
-🧪 Tests:
-
-Mock de supabase.from()
-
-Test de CRUD básico (getAll, getById, create, delete)
+✅ Estados de loading, error y éxito implementados
 
 🔁 Merge:
-A dev cuando todos los servicios respondan correctamente.
+✅ Todos los servicios responden correctamente - LISTO PARA MERGE
 
 ⚙️ FASE 5 — Hooks de datos
 

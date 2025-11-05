@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -9,8 +8,7 @@ import {
   UserPlus,
   UserMinus,
 } from "lucide-react";
-import { EditEventModal } from "./EditEventModal";
-import { EventWithDetails, UpdateEventData } from "@/types";
+import { EventWithDetails } from "@/types";
 
 interface EventInfoCardProps {
   event: EventWithDetails;
@@ -29,25 +27,13 @@ export function EventInfoCard({
   onJoin,
   onLeave,
 }: EventInfoCardProps) {
-  const [editModalOpen, setEditModalOpen] = useState(false);
   const eventDate = new Date(event.date);
   const isEventPast = eventDate < new Date();
 
   const handleEditClick = () => {
-    setEditModalOpen(true);
     if (onEdit) {
       onEdit();
     }
-  };
-
-  const handleSaveEdit = (eventData: UpdateEventData) => {
-    // Aquí se podría actualizar el evento en el estado padre
-    const updatedEvent = {
-      ...event,
-      ...eventData,
-    };
-    console.log("Event updated:", updatedEvent);
-    setEditModalOpen(false);
   };
 
   const formatDate = (dateString: string) => {
@@ -105,19 +91,19 @@ export function EventInfoCard({
       <CardContent>
         {/* Event Image */}
         {event.image_url && (
-          <div className="mb-6">
+          <div className="mb-6 flex justify-center">
             <img
               src={event.image_url}
               alt={event.title}
-              className="w-full h-64 object-cover rounded-lg border border-border"
+              className="w-64 h-64 object-cover rounded-lg border border-border"
             />
           </div>
         )}
 
         {/* Event Image Placeholder if no image */}
         {!event.image_url && (
-          <div className="mb-6">
-            <div className="w-full h-64 bg-muted rounded-lg border border-border flex items-center justify-center">
+          <div className="mb-6 flex justify-center">
+            <div className="w-64 h-64 bg-muted rounded-lg border border-border flex items-center justify-center">
               <div className="text-center text-muted-foreground">
                 <Calendar className="w-12 h-12 mx-auto mb-2 opacity-50" />
                 <p className="text-sm">Event Image</p>
@@ -189,14 +175,6 @@ export function EventInfoCard({
           </div>
         )}
       </CardContent>
-
-      {/* Edit Event Modal */}
-      <EditEventModal
-        isOpen={editModalOpen}
-        onClose={() => setEditModalOpen(false)}
-        onSave={handleSaveEdit}
-        event={event}
-      />
     </Card>
   );
 }

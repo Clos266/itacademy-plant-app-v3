@@ -1,4 +1,10 @@
-import { MapPinIcon, LucideIcon, HomeIcon, LeafIcon } from "lucide-react";
+import {
+  MapPinIcon,
+  LucideIcon,
+  HomeIcon,
+  LeafIcon,
+  UserIcon,
+} from "lucide-react";
 
 type MenuItemType = {
   title: string;
@@ -24,5 +30,10 @@ export const mainMenu: MenuType = [
     title: "My Plants",
     url: "/MyPlants",
     icon: LeafIcon,
+  },
+  {
+    title: "Profile",
+    url: "/profile",
+    icon: UserIcon,
   },
 ];
