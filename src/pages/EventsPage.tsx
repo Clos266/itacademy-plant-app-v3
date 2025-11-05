@@ -32,8 +32,7 @@ export default function Events() {
     setSearch,
     setShowAvailable: setShowUpcoming,
   } = useFilters();
-  const { userParticipations, isParticipating, joinEvent, leaveEvent } =
-    useEventParticipants();
+  const { isParticipating, joinEvent, leaveEvent } = useEventParticipants();
 
   // Estado de modales
   const [createModalOpen, setCreateModalOpen] = useState(false);
@@ -83,26 +82,21 @@ export default function Events() {
     }
   };
 
-  const handleJoinEvent = async (eventId: string) => {
-    // TODO: Open plant selection modal
-    // For now, we'll use a placeholder plant ID
-    const dummyPlantId = "placeholder-plant-id";
+  const handleJoinEvent = async (plantId: string) => {
+    if (!selectedEventForView) return;
 
-    const result = await joinEvent(eventId, dummyPlantId);
+    const result = await joinEvent(selectedEventForView.id, plantId);
     if (!result.success) {
       console.error("Failed to join event:", result.error);
     }
   };
 
-  const handleLeaveEvent = async (eventId: string) => {
-    const participation = userParticipations.find(
-      (p) => p.event_id === eventId
-    );
-    if (participation) {
-      const result = await leaveEvent(eventId);
-      if (!result.success) {
-        console.error("Failed to leave event:", result.error);
-      }
+  const handleLeaveEvent = async () => {
+    if (!selectedEventForView) return;
+
+    const result = await leaveEvent(selectedEventForView.id);
+    if (!result.success) {
+      console.error("Failed to leave event:", result.error);
     }
   };
 
@@ -256,8 +250,8 @@ export default function Events() {
               isJoined={isParticipating(selectedEventForView.id)}
               canEdit={true} // Habilitado para mostrar el botón de edición
               onEdit={() => openEditModal(selectedEventForView)}
-              onJoin={() => handleJoinEvent(selectedEventForView.id)}
-              onLeave={() => handleLeaveEvent(selectedEventForView.id)}
+              onJoin={handleJoinEvent}
+              onLeave={handleLeaveEvent}
             />
           </div>
         </div>

@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "./useAuth";
-import { EventParticipant } from "@/types";
+import { EventParticipant, EventParticipantWithDetails } from "@/types";
 import {
-  getEventParticipants,
+  getEventParticipantsWithDetails,
   getUserParticipations,
   createParticipant,
   deleteParticipant,
@@ -10,20 +10,22 @@ import {
 
 export function useEventParticipants(eventId?: string) {
   const { user } = useAuth();
-  const [participants, setParticipants] = useState<EventParticipant[]>([]);
+  const [participants, setParticipants] = useState<
+    EventParticipantWithDetails[]
+  >([]);
   const [userParticipations, setUserParticipations] = useState<
     EventParticipant[]
   >([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Load participants for a specific event
+  // Load participants for a specific event with user and plant details
   const loadEventParticipants = async (targetEventId: string) => {
     setLoading(true);
     setError(null);
 
     try {
-      const result = await getEventParticipants(targetEventId);
+      const result = await getEventParticipantsWithDetails(targetEventId);
       if (result.success && result.data) {
         setParticipants(result.data);
       } else {
@@ -98,8 +100,8 @@ export function useEventParticipants(eventId?: string) {
     }
   };
 
-  // Leave an event
-  const leaveEvent = async (participantId: string) => {
+  // Leave an event (by participation ID)
+  const leaveEventByParticipantId = async (participantId: string) => {
     setLoading(true);
     setError(null);
 
@@ -123,6 +125,19 @@ export function useEventParticipants(eventId?: string) {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Leave an event (by event ID - convenience function)
+  const leaveEvent = async (targetEventId: string) => {
+    const participation = getUserParticipation(targetEventId);
+
+    if (!participation) {
+      const errorMsg = "User is not participating in this event";
+      setError(errorMsg);
+      return { success: false, error: errorMsg };
+    }
+
+    return await leaveEventByParticipantId(participation.id);
   };
 
   // Check if user is participating in a specific event

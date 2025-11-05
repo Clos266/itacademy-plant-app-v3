@@ -1,5 +1,9 @@
 import { supabase, ServiceResponse } from "./supabaseClient";
-import { EventParticipant, CreateEventParticipantData } from "@/types";
+import {
+  EventParticipant,
+  EventParticipantWithDetails,
+  CreateEventParticipantData,
+} from "@/types";
 
 const TABLE_NAME = "event_participants";
 
@@ -43,6 +47,25 @@ export async function getEventParticipants(
   const { data: participants, error } = await supabase
     .from(TABLE_NAME)
     .select("*")
+    .eq("event_id", eventId)
+    .order("created_at", { ascending: true });
+
+  return { data: participants || [], error: error?.message, success: !error };
+}
+
+// Get participants with user and plant details
+export async function getEventParticipantsWithDetails(
+  eventId: string
+): Promise<ServiceResponse<EventParticipantWithDetails[]>> {
+  const { data: participants, error } = await supabase
+    .from(TABLE_NAME)
+    .select(
+      `
+      *,
+      user:profiles(id, nickname, avatar),
+      plant:plants(id, name, scientific_name, image_url)
+    `
+    )
     .eq("event_id", eventId)
     .order("created_at", { ascending: true });
 
