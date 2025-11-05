@@ -43,7 +43,7 @@ export function ImageUploader({
   };
 
   return (
-    <div className="flex flex-col items-start gap-3 w-full">
+    <div className="flex flex-col items-center gap-3 w-full">
       {preview ? (
         <div
           className="relative group w-40 h-40 cursor-pointer"

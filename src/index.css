@@ -26,8 +26,8 @@
   --destructive: oklch(0.65 0.18 30);
   --radius: 0.625rem;
 
-    --input: var(--muted);
-      --card: oklch(0.97 0.02 120);
+  --input: var(--muted);
+  --card: oklch(0.97 0.02 120);
   --card-foreground: oklch(0.2 0.03 120);
 
   --popover: oklch(0.98 0.02 120);
@@ -51,7 +51,7 @@
   --popover: oklch(0.25 0.02 120);
   --popover-foreground: oklch(0.95 0.02 120);
 
-    --input: var(--muted);
+  --input: var(--muted);
 
   --background: oklch(0.18 0.02 120);
   --foreground: oklch(0.95 0.02 120);
@@ -120,6 +120,42 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Custom scrollbar styles for shadcn/ui consistency */
+.scrollbar-thin {
+  scrollbar-width: thin;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.scrollbar-track-transparent::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thumb-border::-webkit-scrollbar-thumb {
+  background-color: hsl(var(--border));
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+.scrollbar-thumb-border:hover::-webkit-scrollbar-thumb {
+  background-color: hsl(var(--muted-foreground) / 0.3);
+}
+
+.scrollbar-thumb-rounded-full::-webkit-scrollbar-thumb {
+  border-radius: 9999px;
+}
+
+/* Firefox scrollbar */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--border)) transparent;
+}
+
 html,
 body {
   overflow-x: hidden;
