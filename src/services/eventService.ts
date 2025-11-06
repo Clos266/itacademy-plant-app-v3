@@ -1,5 +1,10 @@
 import { supabase, ServiceResponse } from "./supabaseClient";
-import { Event, CreateEventData, UpdateEventData } from "@/types";
+import {
+  Event,
+  EventWithDetails,
+  CreateEventData,
+  UpdateEventData,
+} from "@/types";
 import { uploadImage } from "./imageService";
 
 const TABLE_NAME = "events";
@@ -46,6 +51,47 @@ export async function getAllEvents(): Promise<ServiceResponse<Event[]>> {
     .order("date", { ascending: false });
 
   return { data: events || [], error: error?.message, success: !error };
+}
+
+// Get all events with participant count
+export async function getAllEventsWithAttendees(): Promise<
+  ServiceResponse<EventWithDetails[]>
+> {
+  try {
+    // First get all events
+    const { data: events, error: eventsError } = await supabase
+      .from(TABLE_NAME)
+      .select("*")
+      .order("date", { ascending: false });
+
+    if (eventsError || !events) {
+      return {
+        data: [],
+        error: eventsError?.message || "Error loading events",
+        success: false,
+      };
+    }
+
+    // Then get participant counts for each event
+    const eventsWithDetails: EventWithDetails[] = await Promise.all(
+      events.map(async (event) => {
+        const { count, error: countError } = await supabase
+          .from("event_participants")
+          .select("*", { count: "exact", head: true })
+          .eq("event_id", event.id);
+
+        return {
+          ...event,
+          attendees: countError ? 0 : count || 0,
+          isUpcoming: new Date(event.date) > new Date(),
+        };
+      })
+    );
+
+    return { data: eventsWithDetails, error: undefined, success: true };
+  } catch (error: any) {
+    return { data: [], error: error.message, success: false };
+  }
 }
 
 export async function getUserEvents(

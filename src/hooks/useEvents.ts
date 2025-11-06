@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "./useAuth";
 import { Event, EventWithDetails } from "@/types";
 import {
-  getAllEvents,
+  getAllEventsWithAttendees,
   createEvent,
   updateEvent,
   deleteEvent,
@@ -20,23 +20,9 @@ export function useEvents() {
     setError(null);
 
     try {
-      const result = await getAllEvents();
+      const result = await getAllEventsWithAttendees();
       if (result.success && result.data) {
-        // Transform events to include UI fields
-        const eventsWithDetails: EventWithDetails[] = result.data.map(
-          (event) => ({
-            ...event,
-            attendees: Math.floor(Math.random() * 50) + 10, // Mock attendees for now
-            isUpcoming: new Date(event.date) > new Date(),
-            // Mantener image_url como está, usar placeholder solo si no existe
-            image_url:
-              event.image_url ||
-              `/api/placeholder/300/200?text=${encodeURIComponent(
-                event.title
-              )}`,
-          })
-        );
-        setEvents(eventsWithDetails);
+        setEvents(result.data);
       } else {
         setError(result.error || "Error loading events");
         setEvents([]);
@@ -64,10 +50,17 @@ export function useEvents() {
     setError(null);
 
     try {
-      const result = await createEvent({
-        ...eventData,
+      const eventToCreate = {
+        title: eventData.title,
+        date: eventData.date,
+        location: eventData.location,
+        image_url: eventData.image_url,
+        description: eventData.description,
         creator_id: user.id,
-      });
+        image: eventData.image,
+      };
+
+      const result = await createEvent(eventToCreate);
 
       if (result.success) {
         await loadEvents(); // Reload to get updated list
