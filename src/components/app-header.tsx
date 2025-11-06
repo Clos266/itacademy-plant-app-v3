@@ -14,12 +14,13 @@ import { AppLogo } from "./app-logo";
 import { HamburgerMenu } from "./hamburger-menu";
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { baseUrl } from "@/config/app";
 import { useAuth } from "@/hooks/useAuth";
+import { useProfile } from "@/hooks/useProfile";
 
 export function AppHeader() {
   const location = useLocation();
   const { user, signOut } = useAuth();
+  const { profile } = useProfile();
 
   return (
     <header className="bg-background sticky top-0 z-50 border-b">
@@ -102,9 +103,16 @@ export function AppHeader() {
                     className="relative h-8 w-8 rounded-full cursor-pointer ml-2"
                   >
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={baseUrl} alt={user.email} />
+                      {profile?.avatar && (
+                        <AvatarImage
+                          src={profile.avatar}
+                          alt={profile?.nickname || user.email}
+                        />
+                      )}
                       <AvatarFallback className="rounded-lg">
-                        {user.email.substring(0, 2).toUpperCase()}
+                        {profile?.nickname
+                          ? profile.nickname.substring(0, 2).toUpperCase()
+                          : user.email.substring(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                   </Button>
@@ -113,13 +121,17 @@ export function AppHeader() {
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
                       <p className="text-sm font-medium leading-none">
-                        Usuario
+                        {profile?.nickname || user.email.split("@")[0]}
                       </p>
                       <p className="text-xs leading-none text-muted-foreground">
                         {user.email}
                       </p>
                     </div>
                   </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link to="/profile">Ver perfil</Link>
+                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => signOut()}>
                     Cerrar sesión

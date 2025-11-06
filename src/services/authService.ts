@@ -138,24 +138,6 @@ export async function getCurrentUser(): Promise<ServiceResponse<AuthUser>> {
   }
 }
 
-// Get session
-export async function getSession() {
-  try {
-    const {
-      data: { session },
-      error,
-    } = await supabase.auth.getSession();
-
-    if (error) {
-      return { session: null, error: error.message };
-    }
-
-    return { session, error: null };
-  } catch (error: any) {
-    return { session: null, error: error.message };
-  }
-}
-
 // Auth state change listener
 export function onAuthStateChange(callback: (user: AuthUser | null) => void) {
   return supabase.auth.onAuthStateChange((_event, session) => {

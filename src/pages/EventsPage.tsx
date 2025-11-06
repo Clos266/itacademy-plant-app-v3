@@ -15,6 +15,7 @@ import { EventWithDetails, UpdateEventData } from "@/types";
 import { useEvents } from "@/hooks/useEvents";
 import { useFilters } from "@/hooks/useFilters";
 import { useEventParticipants } from "@/hooks/useEventParticipants";
+import { usePlants } from "@/hooks/usePlants";
 
 export default function Events() {
   // Custom hooks for business logic
@@ -32,7 +33,9 @@ export default function Events() {
     setSearch,
     setShowAvailable: setShowUpcoming,
   } = useFilters();
-  const { isParticipating, joinEvent, leaveEvent } = useEventParticipants();
+  const { isParticipating, joinEvent, leaveEvent, getUserParticipation } =
+    useEventParticipants();
+  const { updateExistingPlant } = usePlants();
 
   // Estado de modales
   const [createModalOpen, setCreateModalOpen] = useState(false);
@@ -86,7 +89,19 @@ export default function Events() {
     if (!selectedEventForView) return;
 
     const result = await joinEvent(selectedEventForView.id, plantId);
-    if (!result.success) {
+    if (result.success) {
+      // Update plant to mark it as not available
+      const plantUpdateResult = await updateExistingPlant(plantId, {
+        is_available: false,
+      });
+
+      if (!plantUpdateResult.success) {
+        console.error(
+          "Failed to update plant availability:",
+          plantUpdateResult.error
+        );
+      }
+    } else {
       console.error("Failed to join event:", result.error);
     }
   };
@@ -94,8 +109,30 @@ export default function Events() {
   const handleLeaveEvent = async () => {
     if (!selectedEventForView) return;
 
+    // Get the participation to find the plant_id
+    const participation = getUserParticipation(selectedEventForView.id);
+    if (!participation) {
+      console.error("User participation not found");
+      return;
+    }
+
     const result = await leaveEvent(selectedEventForView.id);
-    if (!result.success) {
+    if (result.success) {
+      // Update plant to mark it as available again
+      const plantUpdateResult = await updateExistingPlant(
+        participation.plant_id,
+        {
+          is_available: true,
+        }
+      );
+
+      if (!plantUpdateResult.success) {
+        console.error(
+          "Failed to update plant availability:",
+          plantUpdateResult.error
+        );
+      }
+    } else {
       console.error("Failed to leave event:", result.error);
     }
   };
@@ -126,7 +163,7 @@ export default function Events() {
           onSearchChange={setSearch}
           toggleValue={showUpcoming}
           onToggleChange={setShowUpcoming}
-          toggleLabels={{ on: "Upcoming", off: "Past" }}
+          toggleLabels={{ on: "Upcoming", off: "All" }}
           placeholder="search events..."
         />
 

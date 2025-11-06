@@ -3,9 +3,11 @@ import { PageHeader, PageHeaderHeading } from "@/components/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ImageUploader } from "@/components/common/ImageUploader";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
+import { uploadImage } from "@/services/imageService";
 
 export default function ProfilePage() {
   const { user, signOut } = useAuth();
@@ -14,6 +16,7 @@ export default function ProfilePage() {
 
   // Simple form state
   const [nickname, setNickname] = useState(profile?.nickname || "");
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [isEditing, setIsEditing] = useState(!profile);
   const [saving, setSaving] = useState(false);
 
@@ -21,6 +24,7 @@ export default function ProfilePage() {
   useEffect(() => {
     if (profile) {
       setNickname(profile.nickname || "");
+      setAvatarFile(null);
       setIsEditing(false);
     } else {
       setIsEditing(true);
@@ -32,13 +36,29 @@ export default function ProfilePage() {
 
     setSaving(true);
     try {
-      const profileData = { nickname: nickname.trim() };
+      let avatarUrl = profile?.avatar || null;
+
+      // Subir nueva imagen del avatar si hay una
+      if (avatarFile) {
+        const uploadedUrl = await uploadImage(avatarFile, "avatars");
+        if (uploadedUrl) {
+          avatarUrl = uploadedUrl;
+        }
+      }
+
+      const profileData = {
+        nickname: nickname.trim(),
+        avatar: avatarUrl,
+      };
 
       if (profile) {
         await updateUserProfile(profileData);
       } else {
         await createUserProfile(profileData);
       }
+
+      // Limpiar archivo temporal después de guardar
+      setAvatarFile(null);
       setIsEditing(false);
     } finally {
       setSaving(false);
@@ -47,6 +67,7 @@ export default function ProfilePage() {
 
   const handleCancel = () => {
     setNickname(profile?.nickname || "");
+    setAvatarFile(null);
     setIsEditing(false);
   };
 
@@ -107,15 +128,33 @@ export default function ProfilePage() {
             )}
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Avatar simple */}
-            <div className="flex items-center space-x-4">
-              <Avatar className="h-16 w-16">
-                <AvatarFallback className="text-lg">
-                  {(nickname || user?.email || "U")
-                    .substring(0, 2)
-                    .toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
+            {/* Avatar y foto de perfil */}
+            <div className="flex items-center space-x-6">
+              {isEditing ? (
+                <div className="flex flex-col items-center space-y-2">
+                  <ImageUploader
+                    value={profile?.avatar || null}
+                    onChange={setAvatarFile}
+                    label="Subir"
+                    helpText="Avatar"
+                    variant="avatar"
+                  />
+                  <p className="text-xs text-muted-foreground text-center">
+                    JPG, PNG, GIF
+                  </p>
+                </div>
+              ) : (
+                <Avatar className="h-16 w-16">
+                  {profile?.avatar && (
+                    <AvatarImage src={profile.avatar} alt="Avatar" />
+                  )}
+                  <AvatarFallback className="text-lg">
+                    {(nickname || user?.email || "U")
+                      .substring(0, 2)
+                      .toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+              )}
               <div>
                 <p className="font-medium">{nickname || "Sin nombre"}</p>
                 <p className="text-sm text-muted-foreground">{user?.email}</p>

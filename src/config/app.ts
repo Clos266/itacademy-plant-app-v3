@@ -21,5 +21,3 @@ export const appConfig: AppConfigType = {
     url: "https://github.com/Clos266/itacademy-plant-app-v3",
   },
 };
-
-export const baseUrl = import.meta.env.VITE_BASE_URL ?? "";

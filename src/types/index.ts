@@ -54,10 +54,6 @@ export interface EventWithDetails extends Event {
   userPlants?: Plant[]; // Plants available for the current user
 }
 
-export interface PlantWithOwner extends Plant {
-  owner?: Profile;
-}
-
 export interface EventParticipantWithDetails extends EventParticipant {
   event?: Event;
   user?: Profile;
@@ -81,34 +77,6 @@ export type CreateEventParticipantData = Omit<
   "id" | "created_at"
 >;
 
-// UI State types
-export interface FilterState {
-  search: string;
-  showAvailable?: boolean;
-  showUpcoming?: boolean;
-  dateRange?: {
-    start: string;
-    end: string;
-  };
-}
+// UI State types - Removed unused FilterState and ModalState
 
-export interface ModalState {
-  isOpen: boolean;
-  mode: "create" | "edit" | "view";
-  data?: any; // Will be typed specifically in components
-}
-
-// API Response types
-export interface ApiResponse<T> {
-  data?: T;
-  error?: string;
-  message?: string;
-}
-
-export interface PaginatedResponse<T> {
-  data: T[];
-  total: number;
-  page: number;
-  pageSize: number;
-  totalPages: number;
-}
+// API Response types - Removed unused ApiResponse and PaginatedResponse

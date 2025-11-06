@@ -100,7 +100,7 @@ export default function MyPlants() {
           onSearchChange={setSearch}
           toggleValue={showAvailable}
           onToggleChange={setShowAvailable}
-          toggleLabels={{ on: "Available", off: "Unavailable" }}
+          toggleLabels={{ on: "Available", off: "All" }}
           placeholder="search plants..."
         />
 

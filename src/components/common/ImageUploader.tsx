@@ -7,6 +7,7 @@ interface ImageUploaderProps {
   onChange: (file: File | null) => void;
   label?: string;
   helpText?: string;
+  variant?: "default" | "avatar";
 }
 
 export function ImageUploader({
@@ -14,6 +15,7 @@ export function ImageUploader({
   onChange,
   label = "upload image",
   helpText = "Click here",
+  variant = "default",
 }: ImageUploaderProps) {
   const [preview, setPreview] = useState<string>(value || "");
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -42,17 +44,23 @@ export function ImageUploader({
     fileInputRef.current?.click();
   };
 
+  // Configurar estilos según la variante
+  const isAvatar = variant === "avatar";
+  const containerSize = isAvatar ? "w-24 h-24" : "w-40 h-40";
+  const imageRounding = isAvatar ? "rounded-full" : "rounded-xl";
+  const borderRounding = isAvatar ? "rounded-full" : "rounded-xl";
+
   return (
     <div className="flex flex-col items-center gap-3 w-full">
       {preview ? (
         <div
-          className="relative group w-40 h-40 cursor-pointer flex-shrink-0"
+          className={`relative group cursor-pointer flex-shrink-0 ${containerSize}`}
           onClick={handleClick}
         >
           <img
             src={preview}
             alt="Uploaded"
-            className="w-40 h-40 object-cover rounded-xl border border-border shadow-sm transition-transform group-hover:scale-[1.02]"
+            className={`${containerSize} object-cover ${imageRounding} border border-border shadow-sm transition-transform group-hover:scale-[1.02]`}
           />
           <Button
             type="button"
@@ -71,7 +79,7 @@ export function ImageUploader({
       ) : (
         <div
           onClick={handleClick}
-          className="flex flex-col items-center justify-center gap-2 w-40 h-40 rounded-xl border-2 border-dashed border-border text-muted-foreground hover:bg-muted/40 cursor-pointer transition-colors flex-shrink-0"
+          className={`flex flex-col items-center justify-center gap-2 ${containerSize} ${borderRounding} border-2 border-dashed border-border text-muted-foreground hover:bg-muted/40 cursor-pointer transition-colors flex-shrink-0`}
         >
           <Upload className="w-6 h-6" />
           <p className="text-sm text-center">{helpText}</p>

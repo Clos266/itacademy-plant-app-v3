@@ -1,7 +1,36 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { useState } from "react";
 
 export default function HomePage() {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const [isNavigating, setIsNavigating] = useState(false);
+
+  const handleGetStarted = async () => {
+    setIsNavigating(true);
+    // Small delay for smooth UX
+    setTimeout(() => {
+      if (user) {
+        navigate("/MyPlants");
+      } else {
+        // Trigger auth modal by navigating to protected route
+        navigate("/MyPlants");
+      }
+      setIsNavigating(false);
+    }, 150);
+  };
+
+  const handleBrowseEvents = async () => {
+    setIsNavigating(true);
+    setTimeout(() => {
+      navigate("/events");
+      setIsNavigating(false);
+    }, 150);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
@@ -22,18 +51,10 @@ export default function HomePage() {
           </h1>
 
           <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
-            Connect with fellow plant enthusiasts. Exchange, learn, and grow
-            your collection in a community passionate about nature.
+            {user
+              ? `Ready to grow your plant collection further?`
+              : `Connect with fellow plant enthusiasts. Exchange, learn, and grow your collection in a community passionate about nature.`}
           </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Button size="lg" className="px-8 py-3 text-lg">
-              🌱 Get Started
-            </Button>
-            <Button variant="outline" size="lg" className="px-8 py-3 text-lg">
-              📖 Browse Events
-            </Button>
-          </div>
         </div>
 
         {/* Decorative elements */}
@@ -168,22 +189,35 @@ export default function HomePage() {
       <section className="py-20 px-6 bg-primary text-primary-foreground">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-4xl md:text-5xl font-bold mb-6">
-            Ready to grow your collection?
+            {user
+              ? "Let's make your next exchange happen!"
+              : "Ready to grow your collection?"}
           </h2>
           <p className="text-xl mb-8 opacity-90 max-w-2xl mx-auto">
-            Join hundreds of plant lovers who are already exchanging and
-            building a green community.
+            {user
+              ? "You're part of our amazing community of plant lovers. Time to add more green friends to your collection!"
+              : "Join hundreds of plant lovers who are already exchanging and building a green community."}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Button size="lg" variant="secondary" className="px-8 py-3 text-lg">
-              🚀 Start Free
+            <Button
+              size="lg"
+              variant="secondary"
+              className="px-8 py-3 text-lg"
+              onClick={handleGetStarted}
+              disabled={isNavigating}
+            >
+              {isNavigating
+                ? "Loading..."
+                : `🚀 ${user ? "Go to My Plants" : "Start Free"}`}
             </Button>
             <Button
               size="lg"
               variant="outline"
               className="px-8 py-3 text-lg border-primary-foreground text-primary-foreground hover:bg-primary-foreground/10"
+              onClick={handleBrowseEvents}
+              disabled={isNavigating}
             >
-              💬 Contact Us
+              {isNavigating ? "Loading..." : "📖 View Events"}
             </Button>
           </div>
         </div>
