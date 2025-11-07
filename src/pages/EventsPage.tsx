@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PageHeader, PageHeaderHeading } from "@/components/page-header";
 import {
   Card,
@@ -23,9 +23,9 @@ export default function Events() {
     events,
     loading,
     error,
-    filterEvents,
     addEvent,
     updateExistingEvent,
+    filterEvents,
   } = useEvents();
   const {
     search,
@@ -37,6 +37,12 @@ export default function Events() {
     useEventParticipants();
   const { updateExistingPlant } = usePlants();
 
+  const [filteredEvents, setFilteredEvents] = useState<EventWithDetails[]>([]);
+
+  useEffect(() => {
+    setFilteredEvents(filterEvents(search, showUpcoming));
+  }, [events, search, showUpcoming]);
+
   // Estado de modales
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -47,9 +53,6 @@ export default function Events() {
   // Estado de vista detallada
   const [selectedEventForView, setSelectedEventForView] =
     useState<EventWithDetails | null>(null);
-
-  // Filter events based on current filters
-  const filteredEvents = filterEvents(events, search, showUpcoming);
 
   // Funciones para manejar eventos
   const handleCreateEvent = async (
@@ -74,6 +77,7 @@ export default function Events() {
   const handleEditEvent = async (
     eventData: UpdateEventData & { image?: File }
   ) => {
+    console.log("holis");
     if (!selectedEvent) return;
 
     const result = await updateExistingEvent(selectedEvent.id, eventData);
@@ -141,7 +145,7 @@ export default function Events() {
     setSelectedEvent(event);
     setEditModalOpen(true);
   };
-
+  console.log("holis", selectedEventForView);
   return (
     <>
       {/* Encabezado */}
@@ -307,6 +311,7 @@ export default function Events() {
         onClose={() => {
           setEditModalOpen(false);
           setSelectedEvent(null);
+          setSelectedEventForView(null);
         }}
         event={selectedEvent || undefined}
         onSave={handleEditEvent}

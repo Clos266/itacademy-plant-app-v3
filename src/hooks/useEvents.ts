@@ -128,12 +128,8 @@ export function useEvents() {
   };
 
   // Filter events by search and upcoming status
-  const filterEvents = (
-    events: EventWithDetails[],
-    search: string,
-    showUpcoming: boolean
-  ) => {
-    return events.filter((event: EventWithDetails) => {
+  const filterEvents = (search: string, showUpcoming: boolean) => {
+    return [...events].filter((event: EventWithDetails) => {
       const matchesSearch =
         event.title.toLowerCase().includes(search.toLowerCase()) ||
         event.location.toLowerCase().includes(search.toLowerCase()) ||
