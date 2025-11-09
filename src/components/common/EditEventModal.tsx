@@ -4,28 +4,27 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ImageUploader } from "./ImageUploader";
 import { EventWithDetails, UpdateEventData } from "@/types";
-import { useEvents } from "@/hooks/useEvents";
 
-interface EditEventModalProps {
+type EditEventModalProps = {
   isOpen: boolean;
   onClose: () => void;
   event?: EventWithDetails;
   onSave: (eventData: UpdateEventData & { image?: File }) => void;
-}
+  onDelete?: (eventId: string) => Promise<{ success: boolean }>;
+};
 
 export function EditEventModal({
   isOpen,
   onClose,
   event,
   onSave,
+  onDelete,
 }: EditEventModalProps) {
   const [title, setTitle] = useState("");
   const [location, setLocation] = useState("");
   const [date, setDate] = useState("");
   const [description, setDescription] = useState("");
   const [image, setImage] = useState<File | null>(null);
-
-  const { removeEvent } = useEvents();
 
   // Resetear o cargar datos cuando se abre/cierra o cambia el evento
   useEffect(() => {
@@ -68,9 +67,11 @@ export function EditEventModal({
       );
 
       if (confirmed) {
-        const result = await removeEvent(event.id);
-        if (result.success) {
-          onClose();
+        if (onDelete) {
+          const result = await onDelete(event.id);
+          if (result.success) {
+            onClose();
+          }
         }
       }
     }

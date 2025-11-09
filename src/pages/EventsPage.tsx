@@ -26,6 +26,7 @@ export default function Events() {
     addEvent,
     updateExistingEvent,
     filterEvents,
+    removeEvent,
   } = useEvents();
   const {
     search,
@@ -315,6 +316,7 @@ export default function Events() {
         }}
         event={selectedEvent || undefined}
         onSave={handleEditEvent}
+        onDelete={removeEvent}
       />
     </>
   );
