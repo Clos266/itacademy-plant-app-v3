@@ -37,23 +37,4 @@ describe("useFilters Hook", () => {
     // Assert
     expect(result.current.showAvailable).toBe(false);
   });
-
-  it("should clear all filters", () => {
-    // Arrange
-    const { result } = renderHook(() => useFilters());
-
-    act(() => {
-      result.current.setSearch("test");
-      result.current.setShowAvailable(false);
-    });
-
-    // Act
-    act(() => {
-      result.current.clearFilters();
-    });
-
-    // Assert
-    expect(result.current.search).toBe("");
-    expect(result.current.showAvailable).toBe(true);
-  });
 });

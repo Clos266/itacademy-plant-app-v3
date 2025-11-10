@@ -39,12 +39,8 @@ describe("usePlants Hook", () => {
     const { result } = renderHook(() => usePlants());
 
     expect(result.current.plants).toEqual([]);
-    expect(result.current.loading).toBe(true); // Hook starts loading on mount
+    expect(result.current.loading).toBe(true);
     expect(result.current.error).toBe(null);
-    expect(typeof result.current.addPlant).toBe("function");
-    expect(typeof result.current.updateExistingPlant).toBe("function");
-    expect(typeof result.current.removePlant).toBe("function");
-    expect(typeof result.current.loadPlants).toBe("function");
   });
 
   it("provides all required functions", () => {

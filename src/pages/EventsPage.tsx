@@ -16,9 +16,9 @@ import { useEvents } from "@/hooks/useEvents";
 import { useFilters } from "@/hooks/useFilters";
 import { useEventParticipants } from "@/hooks/useEventParticipants";
 import { usePlants } from "@/hooks/usePlants";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function Events() {
-  // Custom hooks for business logic
   const {
     events,
     loading,
@@ -28,14 +28,19 @@ export default function Events() {
     filterEvents,
     removeEvent,
   } = useEvents();
+
+  const { user } = useAuth();
+
   const {
     search,
     showAvailable: showUpcoming,
     setSearch,
     setShowAvailable: setShowUpcoming,
   } = useFilters();
+
   const { isParticipating, joinEvent, leaveEvent, getUserParticipation } =
     useEventParticipants();
+
   const { updateExistingPlant } = usePlants();
 
   const [filteredEvents, setFilteredEvents] = useState<EventWithDetails[]>([]);
@@ -46,7 +51,9 @@ export default function Events() {
 
   // Estado de modales
   const [createModalOpen, setCreateModalOpen] = useState(false);
+
   const [editModalOpen, setEditModalOpen] = useState(false);
+
   const [selectedEvent, setSelectedEvent] = useState<EventWithDetails | null>(
     null
   );
@@ -146,7 +153,8 @@ export default function Events() {
     setSelectedEvent(event);
     setEditModalOpen(true);
   };
-  console.log("holis", selectedEventForView);
+  console.log("holis", selectedEventForView, user);
+
   return (
     <>
       {/* Encabezado */}
@@ -290,7 +298,7 @@ export default function Events() {
             <EventInfoCard
               event={selectedEventForView}
               isJoined={isParticipating(selectedEventForView.id)}
-              canEdit={true} // Habilitado para mostrar el botón de edición
+              canEdit={user?.id === selectedEventForView.creator_id}
               onEdit={() => openEditModal(selectedEventForView)}
               onJoin={handleJoinEvent}
               onLeave={handleLeaveEvent}

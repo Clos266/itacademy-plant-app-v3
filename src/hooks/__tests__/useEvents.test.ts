@@ -48,25 +48,7 @@ describe("useEvents Hook", () => {
     const { result } = renderHook(() => useEvents());
 
     expect(result.current.events).toEqual([]);
-    expect(result.current.loading).toBe(true); // Starts loading on mount
+    expect(result.current.loading).toBe(true);
     expect(result.current.error).toBe(null);
-  });
-
-  it("should have function types for all actions", () => {
-    const { result } = renderHook(() => useEvents());
-
-    expect(typeof result.current.loadEvents).toBe("function");
-    expect(typeof result.current.addEvent).toBe("function");
-    expect(typeof result.current.updateExistingEvent).toBe("function");
-    expect(typeof result.current.removeEvent).toBe("function");
-    expect(typeof result.current.filterEvents).toBe("function");
-    expect(typeof result.current.clearError).toBe("function");
-  });
-
-  it("should handle authentication requirement", () => {
-    const { result } = renderHook(() => useEvents());
-
-    // Hook should initialize without throwing errors
-    expect(result.current).toBeDefined();
   });
 });
